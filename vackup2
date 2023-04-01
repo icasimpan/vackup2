@@ -28,16 +28,16 @@ save/load copies files between an image and a volume. For when you want to use
 
 Usage: 
 
-vackup export VOLUME FILE
+vackup2 export VOLUME FILE
   Creates a gzip'ed tarball in current directory from a volume
 
-vackup import FILE VOLUME
+vackup2 import FILE VOLUME
   Extracts a gzip'ed tarball into a volume
 
-vackup save VOLUME IMAGE
+vackup2 save VOLUME IMAGE
   Copies the volume contents to a busybox image in the /volume-data directory
 
-vackup load IMAGE VOLUME
+vackup2 load IMAGE VOLUME
   Copies /volume-data contents from an image to a volume
 
 EOF
@@ -70,10 +70,10 @@ cmd_export() {
 # unless we can translate full file paths
 
     if ! docker run --rm \
-      -v "$VOLUME_NAME":/vackup-volume \
-      -v "$(pwd)":/vackup \
+      -v "$VOLUME_NAME":/vackup2-volume \
+      -v "$(pwd)":/vackup2 \
       busybox \
-      tar -zcvf /vackup/"$FILE_NAME" /vackup-volume;
+      tar -zcvf /vackup2/"$FILE_NAME" /vackup2-volume;
     then
         echo "Error: Failed to start busybox backup container"
         exit 1
@@ -104,10 +104,10 @@ cmd_import() {
 # unless we can translate full file paths    
 
     if ! docker run --rm \
-      -v "$VOLUME_NAME":/vackup-volume \
-      -v "$(pwd)":/vackup \
+      -v "$VOLUME_NAME":/vackup2-volume \
+      -v "$(pwd)":/vackup2 \
       busybox \
-      tar -xvzf /vackup/"$FILE_NAME" -C /; 
+      tar -xvzf /vackup2/"$FILE_NAME" -C /;
     then
         echo "Error: Failed to start busybox container"
         exit 1
