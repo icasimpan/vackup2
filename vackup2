@@ -26,19 +26,19 @@ export/import copies files between a host tarball and a volume. For making
 save/load copies files between an image and a volume. For when you want to use
   image registries as a way to push/pull volume data.
 
-Usage: vackup COMMAND [ARG..]; FILE args must have known suffixes:
+Usage: vackup2 COMMAND [ARG..]; FILE args must have known suffixes:
   FILE = .{ tar[.{ gz | bz2 | xz | zst[d] }] | tgz | txz }
 
-vackup export VOLUME FILE
+vackup2 export VOLUME FILE
   Create a (compressed) tarball in current directory from a volume.
 
-vackup import FILE VOLUME
+vackup2 import FILE VOLUME
   Extract a tarball into a volume.
 
-vackup save VOLUME IMAGE
+vackup2 save VOLUME IMAGE
   Copy volume contents to the /volume-data directory of a busybox image.
 
-vackup load IMAGE VOLUME
+vackup2 load IMAGE VOLUME
   Copy /volume-data contents from an image to a volume.
 
 Environment: $VACKUP_FAILURE_SCRIPT, $VACKUP_COMPRESS
@@ -96,9 +96,9 @@ cmd_export() {
 # create a option for overwrite and check if that's set
 
     set -- docker run --rm \
-      -v "$VOLUME_NAME":/vackup-volume \
+      -v "$VOLUME_NAME":/vackup2-volume \
       busybox \
-      tar -cvf - /vackup-volume  # tar -vf - outputs list to stderr
+      tar -cvf - /vackup2-volume  # tar -vf - outputs list to stderr
     if ! "$@" | $VACKUP_COMPRESS >"$FILE_NAME"; then
         msg 1 "Error: Failed to start busybox backup container"
     fi
@@ -128,7 +128,7 @@ cmd_import() {
     fi
 
     set -- docker run --rm -i \
-      -v "$VOLUME_NAME":/vackup-volume \
+      -v "$VOLUME_NAME":/vackup2-volume \
       busybox \
       tar -xvf - -C /
     if ! $VACKUP_COMPRESS <"$FILE_NAME" | "$@" >&2; then
