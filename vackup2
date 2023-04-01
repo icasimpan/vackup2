@@ -7,8 +7,8 @@ set -Eeo pipefail
 
 handle_error() {
   exit_code=$?
-  if [ -n "${VACKUP_FAILURE_SCRIPT}" ]; then
-    /bin/bash "${VACKUP_FAILURE_SCRIPT}" "$1" $exit_code
+  if [ -n "${VACKUP2_FAILURE_SCRIPT}" ]; then
+    /bin/bash "${VACKUP2_FAILURE_SCRIPT}" "$1" $exit_code
   fi
   exit $exit_code
 }
@@ -42,7 +42,7 @@ vackup2 save VOLUME IMAGE
 vackup2 load IMAGE VOLUME
   Copy /volume-data contents from an image to a volume.
 
-Environment: $VACKUP_FAILURE_SCRIPT, $VACKUP_COMPRESS
+Environment: $VACKUP2_FAILURE_SCRIPT, $VACKUP2_COMPRESS
 
 
 EOF
@@ -59,23 +59,23 @@ if [ $# = 0 ] || [ "$1" == "-h" ] || [ "$1" == "--help" ]; then
 fi
 
 detect_compression() {  # args: filename (de)compress-flag
-    [ -z ${VACKUP_COMPRESS:-} ] || return 0
+    [ -z ${VACKUP2_COMPRESS:-} ] || return 0
     case "$1" in
-        (*.tar)  VACKUP_COMPRESS=cat ;;
-        (*.gz)   VACKUP_COMPRESS=gzip ;;
-        (*.tgz)  VACKUP_COMPRESS=gzip ;;
-        (*.bz2)  VACKUP_COMPRESS=bzip2 ;;
-        (*.xz)   VACKUP_COMPRESS=xz ;;
-        (*.txz)  VACKUP_COMPRESS=xz ;;
-        (*.zst)  VACKUP_COMPRESS=zstd ;;
-        (*.zstd) VACKUP_COMPRESS=zstd ;;
+        (*.tar)  VACKUP2_COMPRESS=cat ;;
+        (*.gz)   VACKUP2_COMPRESS=gzip ;;
+        (*.tgz)  VACKUP2_COMPRESS=gzip ;;
+        (*.bz2)  VACKUP2_COMPRESS=bzip2 ;;
+        (*.xz)   VACKUP2_COMPRESS=xz ;;
+        (*.txz)  VACKUP2_COMPRESS=xz ;;
+        (*.zst)  VACKUP2_COMPRESS=zstd ;;
+        (*.zstd) VACKUP2_COMPRESS=zstd ;;
         (*)
           msg 1 "Error: unknown extension ${1##*.}"
           ;;
     esac
-    command -v "$VACKUP_COMPRESS" >/dev/null ||
-      msg 1 "Error: $VACKUP_COMPRESS not available on host"
-    [ "$VACKUP_COMPRESS" = cat ] || VACKUP_COMPRESS="$VACKUP_COMPRESS $2"
+    command -v "$VACKUP2_COMPRESS" >/dev/null ||
+      msg 1 "Error: $VACKUP2_COMPRESS not available on host"
+    [ "$VACKUP2_COMPRESS" = cat ] || VACKUP2_COMPRESS="$VACKUP2_COMPRESS $2"
 }
 
 cmd_export() {
@@ -101,7 +101,7 @@ cmd_export() {
       -v "$VOLUME_NAME":/vackup2-volume \
       busybox \
       tar -cvf - /vackup2-volume  # tar -vf - outputs list to stderr
-    if ! "$@" | $VACKUP_COMPRESS >"$FILE_NAME"; then
+    if ! "$@" | $VACKUP2_COMPRESS >"$FILE_NAME"; then
         msg 1 "Error: Failed to start busybox backup container"
     fi
 
@@ -133,7 +133,7 @@ cmd_import() {
       -v "$VOLUME_NAME":/vackup2-volume \
       busybox \
       tar -xvf - -C /
-    if ! $VACKUP_COMPRESS <"$FILE_NAME" | "$@" >&2; then
+    if ! $VACKUP2_COMPRESS <"$FILE_NAME" | "$@" >&2; then
         msg 1 "Error: Failed to start busybox container"
     fi
 
