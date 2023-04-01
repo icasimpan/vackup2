@@ -1,10 +1,12 @@
-# Vackup: Backup and Restore Docker Volumes
+# Vackup2: Backup and Restore Docker Volumes
 
-[![Lint Code Base](https://github.com/BretFisher/docker-vackup/actions/workflows/linter.yml/badge.svg)](https://github.com/BretFisher/docker-vackup/actions/workflows/linter.yml)
+Continuation of [Bret Fisher's docker-vackup](https://github.com/BretFisher/docker-vackup) which he discontinued as of 2022 Sep 2.
+Renamed the repo as vackup2 with "2" as in 2nd version, after the main tool that does the actual backup.
 
-**This is now an [Official Docker Desktop Extension called "Volumes Backup & Share"](https://hub.docker.com/extensions/docker/volumes-backup-extension) which has more features, but I'll keep this repo around for historial purposes.**
+Yes, this is a fork of mentioned tool but decided not to use github's fork option as I don't want this repo to get deleted if in
+the future, Bret decides to delete the old repo for some reason.
 
-Vackup: (contraction of "volume backup")
+Vackup2: (contraction of "volume backup")
 
 Easily backup and restore Docker volumes using either tarballs or container images.
 It's designed for running from any host/container where you have the docker CLI.
@@ -23,41 +25,55 @@ For when you want to use image registries as a way to push/pull volume data.
 
 Usage:
 
-`vackup export VOLUME FILE`
+`vackup2 export VOLUME FILE`
   Creates a gzip'ed tarball in current directory from a volume
 
-`vackup import FILE VOLUME`
+`vackup2 import FILE VOLUME`
   Extracts a gzip'ed tarball into a volume
 
-`vackup save VOLUME IMAGE`
+`vackup2 save VOLUME IMAGE`
   Copies the volume contents to a busybox image in the /volume-data directory
 
-`vackup load IMAGE VOLUME`
+`vackup2 load IMAGE VOLUME`
   Copies /volume-data contents from an image to a volume
+
+## Backup and restore all volumes
+
+Backup
+
+```
+for vl in $(docker volume ls | awk '{print $2 }'); do vackup2 export $vl ${vl}.tar.gz ; done
+```
+
+Restore
+
+```
+for fl in $(ls *.tar.gz); do vackup2 import $fl ${fl%%.*} ; done
+```
 
 ## Install
 
-Download the `vackup` file in this repository to your local machine in your shell path and make it executable.
+Download the `vackup2` file in this repository to your local machine in your shell path and make it executable.
 
 ```shell
-curl -sSL https://raw.githubusercontent.com/BretFisher/docker-vackup/main/vackup > /usr/local/bin/vackup
-chmod +x /usr/local/bin/vackup
+curl -o /usr/local/bin/vackup2 -sSL https://raw.githubusercontent.com/icasimpan/vackup2/main/vackup2
+chmod +x /usr/local/bin/vackup2
 ```
 
 ## Error conditions
 
-If any of the commands fail, the script will check to see if a `VACKUP_FAILURE_SCRIPT`
+If any of the commands fail, the script will check to see if a `VACKUP2_FAILURE_SCRIPT`
 environment variable is set.  If so it will run it and pass the line number the error
 happened on and the exit code from the failed command.  Eg,
 
 ```shell
-# /opt/bin/vackup-failed.sh
+# /opt/bin/vackup2-failed.sh
 LINE_NUMBER=$1
 EXIT_CODE=$2
-send_slack_webhook "Vackup failed on line number ${LINE_NUMBER} with exit code ${EXIT_CODE}!"
+send_slack_webhook "Vackup2 failed on line number ${LINE_NUMBER} with exit code ${EXIT_CODE}!"
 ```
 
 ```shell
-export VACKUP_FAILURE_SCRIPT=/opt/bin/vackup-failed.sh
-./vackup export ......
+export VACKUP2_FAILURE_SCRIPT=/opt/bin/vackup2-failed.sh
+./vackup2 export ......
 ```

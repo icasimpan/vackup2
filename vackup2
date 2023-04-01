@@ -18,6 +18,7 @@ trap 'handle_error $LINENO' ERR
 usage() {
 cat >&2 <<"EOF"
 
+
 "Docker Volume Backup". Replicates image management commands for volumes.
 
 export/import copies files between a host tarball and a volume. For making
@@ -42,6 +43,7 @@ vackup2 load IMAGE VOLUME
   Copy /volume-data contents from an image to a volume.
 
 Environment: $VACKUP_FAILURE_SCRIPT, $VACKUP_COMPRESS
+
 
 EOF
 }
@@ -90,11 +92,11 @@ cmd_export() {
     if ! docker volume inspect --format '{{.Name}}' "$VOLUME_NAME" >/dev/null 2>&1
     then
         msg 1 "Error: Volume $VOLUME_NAME does not exist"
+
     fi
 
 # TODO: check if file exists on host, if it does
 # create a option for overwrite and check if that's set
-
     set -- docker run --rm \
       -v "$VOLUME_NAME":/vackup2-volume \
       busybox \
