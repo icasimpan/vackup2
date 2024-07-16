@@ -132,7 +132,7 @@ cmd_import() {
     set -- docker run --rm -i \
       -v "$VOLUME_NAME":/vackup2-volume \
       busybox \
-      tar -xvf - -C /
+      tar -xvf - -C /vackup2-volume
     if ! $VACKUP2_COMPRESS <"$FILE_NAME" | "$@" >&2; then
         msg 1 "Error: Failed to start busybox container"
     fi
